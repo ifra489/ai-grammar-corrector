@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>AI Grammar Genius</title>
 
     <!-- Bootstrap -->
@@ -29,11 +30,9 @@
       }
 
       body {
-       
         min-height: 100vh;
-  background: linear-gradient(135deg, #0f172a, #1e293b);
-}
-      
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+      }
 
       .hero-section {
         text-align: center;
@@ -58,11 +57,11 @@
         font-size: 3rem;
         font-weight: 700;
         margin-top: 20px;
-        color: #f3f3f3;
+        color: #f8fafc;
       }
 
       .hero-text {
-        color: #f7f7f7;
+        color: #cbd5e1;
         font-size: 1.1rem;
       }
 
@@ -71,6 +70,7 @@
         border-radius: 20px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
         transition: 0.3s;
+        overflow: hidden;
       }
 
       .custom-card:hover {
@@ -83,10 +83,12 @@
       }
 
       textarea {
-        border-radius: 12px !important;
+        border-radius: 14px !important;
         resize: none;
         padding: 15px !important;
         border: 1px solid #cbd5e1 !important;
+        transition: 0.3s;
+        font-size: 16px;
       }
 
       textarea:focus {
@@ -104,23 +106,41 @@
       }
 
       .btn-custom:hover {
-        transform: scale(1.03);
+        transform: scale(1.02);
         background: linear-gradient(135deg, #4338ca, #6d28d9);
+      }
+
+      .btn-custom:disabled {
+        opacity: 0.8;
       }
 
       .output-box {
         background: #f8fafc;
-        border: 1px solid #e2e8f0;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 0;              /* 👈 remove extra space */
+  height: 200px;          /* same as textarea */
+  overflow: hidden;       /* prevent outer scroll issues */
+  display: flex;
+  flex-direction: column;
+      }
+
+      .corrected-text {
+        background: rgb(177, 176, 176);
+        padding: 8px;
         border-radius: 12px;
-        padding: 20px;
-        min-height: 180px;
-        color: #334155;
+        border: 1px solid #e2e8f0;
+        /* word-wrap: break-word; */
+
+  height: 100%;           /* 👈 fill parent */
+  overflow-y: auto;       /* 👈 scroll ONLY here */
+  margin: 0;      
       }
 
       .feature-box {
         background: white;
         border-radius: 18px;
-        padding: 25px;
+        padding: 10px;
         text-align: center;
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
         transition: 0.3s;
@@ -145,23 +165,75 @@
         color: #64748b;
         font-size: 14px;
       }
+
+      .loading-text {
+        font-weight: 500;
+      }
+
+      .dots::after {
+        content: "";
+        animation: dots 1.5s infinite;
+      }
+
+      @keyframes dots {
+        0% {
+          content: "";
+        }
+
+        33% {
+          content: ".";
+        }
+
+        66% {
+          content: "..";
+        }
+
+        100% {
+          content: "...";
+        }
+      }
+
+      .copy-btn {
+        border-radius: 10px;
+        padding: 8px 16px;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        color: white;
+      }
+
+      .footer-text {
+        text-align: center;
+        color: #94a3b8;
+        margin-top: 50px;
+        font-size: 14px;
+      }
+
+      @media (max-width: 768px) {
+        .hero-title {
+          font-size: 2.2rem;
+        }
+      }
     </style>
   </head>
 
   <body>
+
     <div class="container py-5">
 
       <!-- Hero Section -->
       <div class="hero-section">
+
         <div class="hero-icon">
           <i class="fas fa-robot"></i>
         </div>
 
-        <h1 class="hero-title">AI Grammar Genius</h1>
+        <h1 class="hero-title">
+          AI Grammar Genius
+        </h1>
 
         <p class="hero-text">
-       Perfect your writing instantly with intelligent AI-powered grammar correction.
+          Perfect your writing instantly with intelligent AI-powered grammar correction.
         </p>
+
       </div>
 
       <!-- Main Section -->
@@ -169,7 +241,9 @@
 
         <!-- Input -->
         <div class="col-lg-6">
+
           <div class="card custom-card h-100">
+
             <div class="card-body p-4">
 
               <h3 class="card-title mb-3">
@@ -181,32 +255,61 @@
                 Paste or type your text below and let AI enhance it.
               </p>
 
-              <form action="/correct" method="POST">
+              <form id="grammarForm" action="/correct" method="POST">
 
                 <div class="mb-3">
+
                   <textarea
                     class="form-control"
                     name="text"
                     rows="8"
                     placeholder="Type your text here..."
                     required
-                  >
-                <%= originalText || '' %></textarea>
+                  ><%= originalText || '' %></textarea>
+
                 </div>
 
-                <button type="submit" class="btn btn-custom text-white w-100">
+                <!-- Loading -->
+                <div
+                  id="loading"
+                  class="text-center mb-3"
+                  style="display: none;"
+                >
+
+                  <div
+                    class="spinner-border text-primary"
+                    role="status"
+                  ></div>
+
+                  <p class="mt-2 text-muted loading-text">
+                    AI is correcting your text
+                    <span class="dots"></span>
+                  </p>
+
+                </div>
+
+                <button
+                  type="submit"
+                  id="submitBtn"
+                  class="btn btn-custom text-white w-100"
+                >
                   <i class="fas fa-wand-magic-sparkles me-2"></i>
                   Correct Grammar
                 </button>
 
               </form>
+
             </div>
+
           </div>
+
         </div>
 
         <!-- Output -->
         <div class="col-lg-6">
+
           <div class="card custom-card h-100">
+
             <div class="card-body p-4">
 
               <h3 class="card-title mb-3">
@@ -221,17 +324,42 @@
               <div class="output-box">
 
                 <% if(corrected) { %>
-                  <%= corrected %>
+
+                  <!-- Corrected Text -->
+                  <div
+                    id="correctedText"
+                    class="corrected-text"
+                  >
+                    <%= corrected %>
+                  </div>
+
+                  <!-- Copy Button -->
+                  <div class="mt-3 text-end">
+
+                    <button
+                      class="btn btn-outline-primary btn-sm copy-btn"
+                      onclick="copyText()"
+                    >
+                      <i class="fas fa-copy me-1"></i>
+                      Copy Text
+                    </button>
+
+                  </div>
+
                 <% } else { %>
+
                   <p class="text-muted">
                     No corrected text available yet.
                   </p>
+
                 <% } %>
 
               </div>
 
             </div>
+
           </div>
+
         </div>
 
       </div>
@@ -240,37 +368,98 @@
       <div class="row mt-5 g-4">
 
         <div class="col-md-4">
+
           <div class="feature-box">
+
             <i class="fas fa-bolt feature-icon text-warning"></i>
-            <h4 class="feature-title">Fast Processing</h4>
+
+            <h4 class="feature-title">
+              Fast Processing
+            </h4>
+
             <p class="feature-text">
               Get instant grammar corrections in seconds.
             </p>
+
           </div>
+
         </div>
 
         <div class="col-md-4">
+
           <div class="feature-box">
+
             <i class="fas fa-brain feature-icon text-info"></i>
-            <h4 class="feature-title">Smart AI</h4>
+
+            <h4 class="feature-title">
+              Smart AI
+            </h4>
+
             <p class="feature-text">
               AI understands sentence structure and context.
             </p>
+
           </div>
+
         </div>
 
         <div class="col-md-4">
+
           <div class="feature-box">
+
             <i class="fas fa-shield-alt feature-icon text-success"></i>
-            <h4 class="feature-title">Reliable Results</h4>
+
+            <h4 class="feature-title">
+              Reliable Results
+            </h4>
+
             <p class="feature-text">
               Clean, accurate, and professional writing corrections.
             </p>
+
           </div>
+
         </div>
 
       </div>
 
+      <!-- Footer -->
+      <p class="footer-text">
+        Built with ❤️ using AI + Express.js
+      </p>
+
     </div>
+
+    <!-- Scripts -->
+    <script>
+
+      const form = document.getElementById("grammarForm");
+      const loading = document.getElementById("loading");
+      const submitBtn = document.getElementById("submitBtn");
+
+      form.addEventListener("submit", () => {
+
+        loading.style.display = "block";
+
+        submitBtn.disabled = true;
+
+        submitBtn.innerHTML =
+          '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+
+      });
+
+      function copyText() {
+
+        const text =
+          document.getElementById("correctedText").innerText;
+
+        navigator.clipboard.writeText(text);
+
+        alert("Copied to clipboard!");
+
+      }
+
+    </script>
+
   </body>
 </html>
