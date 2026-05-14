@@ -120,18 +120,15 @@ openai/gpt-4o-mini
 
 # 📸 Screenshots
 
-## Home Page
 
-- Clean modern UI
-- AI grammar correction system
-- Responsive design
+### Home Page
 
-## Features
+![Home Page](screenshot/ai.png)
 
-- Copy corrected text
-- Typing animation
-- Smart grammar correction
 
+### Grammar Correction Result
+
+![Result](screenshot/correct.png)
 ---
 
 # 🔥 Future Improvements
